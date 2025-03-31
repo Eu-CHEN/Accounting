@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.accounting.DAO.UserDAO">
+    <resultMap id="UserResultMap" type="org.example.accounting.DO.UserDO">
+        <id column="id" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="usertype" jdbcType="VARCHAR" property="usertype"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="addTime" jdbcType="VARCHAR" property="addTime"/>
+    </resultMap>
+
+    <select id="getAllUser" resultType="java.lang.String" resultMap="UserResultMap">
+        select * from user
+    </select>
+    
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="id">
+        insert into user (username, password, usertype, email, phone, addTime)
+        values (#{username},#{password},#{usertype},#{email},#{phone},#{addTime})
+    </insert>
+
+    <update id="UpdateUser" parameterType="org.example.accounting.DO.UserDO">
+        update user
+        <set>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="usertype != null">
+                usertype = #{usertype},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="pageQuery" resultMap="UserResultMap">
+        SELECT * FROM user
+        <where>
+            <!-- 搜索条件 -->
+            <if test="query != null and query != ''">
+                AND (
+                username LIKE CONCAT('%', #{query}, '%')
+                OR email LIKE CONCAT('%', #{query}, '%')
+                OR phone LIKE CONCAT('%', #{query}, '%')
+                )
+            </if>
+            <!-- 权限过滤 -->
+            <if test="username != 'admin'">
+                AND username = #{username}
+            </if>
+        </where>
+        ORDER BY id ASC
+    </select>
+
+    <delete id="deleteUser" parameterType="java.lang.String">
+        DELETE FROM user
+        WHERE id = #{id}
+    </delete>
+</mapper>

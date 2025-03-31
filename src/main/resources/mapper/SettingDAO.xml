@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.accounting.DAO.SettingDAO">
+    <resultMap id="SettingResultMap" type="org.example.accounting.DO.SettingDO">
+        <result property="id" column="id"/>
+        <result property="systemName" column="systemName"/>
+        <result property="systemDesc" column="systemDesc"/>
+        <result property="adminEmail" column="adminEmail"/>
+        <result property="version" column="version"/>
+    </resultMap>
+
+    <update id="updateSettings" parameterType="org.example.accounting.DO.SettingDO">
+        update setting
+        <set>
+            <if test="systemName != null">systemName = #{systemName},</if>
+            <if test="systemDesc != null">systemDesc = #{systemDesc},</if>
+            <if test="adminEmail != null">adminEmail = #{adminEmail},</if>
+            <if test="version != null">version = #{version},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getSetting">
+        select * from setting
+    </select>
+</mapper>

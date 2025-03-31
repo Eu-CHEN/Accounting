@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.accounting.DAO.BillDAO">
+    <resultMap id="BillResultMap" type="org.example.accounting.DO.BillDO">
+        <id column="id" property="id"/>
+        <result column="billfication" jdbcType="VARCHAR" property="billfication"/>
+        <result column="billtype" jdbcType="VARCHAR" property="billtype"/>
+        <result column="amount" jdbcType="DOUBLE" property="amount"/>
+        <result column="remark" jdbcType="CLOB" property="remark"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="addTime"  property="addTime"/>
+    </resultMap>
+
+    <select id="pageQuery" resultType="org.example.accounting.DO.BillDO" resultMap="BillResultMap">
+        SELECT * FROM bill
+        <where>
+            <if test="query != null and query != ''">
+                AND (
+                billfication LIKE CONCAT('%',#{query},'%')
+                OR billtype LIKE CONCAT('%',#{query},'%')
+                OR amount LIKE CONCAT('%',#{query},'%')
+                OR remark LIKE CONCAT('%',#{query},'%')
+                )
+            </if>
+            <if test="username != 'admin'">
+                AND username = #{username}
+            </if>
+        </where>
+        ORDER BY id ASC
+    </select>
+
+    <insert id="addBill" useGeneratedKeys="true" keyProperty="id">
+        insert into bill (billfication, billtype, amount, remark ,username,addTime)
+        values (#{billfication},#{billtype},#{amount},#{remark},#{username},now())
+    </insert>
+
+    <delete id="deleteBill">
+        delete from bill where id = #{id}
+    </delete>
+
+    <update id="updateBill" parameterType="org.example.accounting.DO.BillDO">
+        update bill
+        <set>
+            <if test="billfication != null">
+                billfication = #{billfication},
+            </if>
+            <if test="billtype != null">
+                billtype = #{billtype},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <select id="getBillsByUsernameAndTimeRange" resultType="org.example.accounting.DO.BillDO">
+        SELECT * FROM bill
+        <where>
+            <if test="username != 'admin'">
+                username = #{username}
+            </if>
+            AND DATE(addTime) BETWEEN #{startDate} AND #{endDate}
+        </where>
+        ORDER BY addTime ASC
+    </select>
+</mapper>

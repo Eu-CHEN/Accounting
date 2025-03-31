@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.accounting.DAO.NotificationDAO">
+    <resultMap id="NotificationResultMap" type="org.example.accounting.DO.Notification">
+        <!-- 主键配置 -->
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <!-- 普通字段映射 -->
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="pageQuery" resultType="org.example.accounting.DO.Notification" resultMap="NotificationResultMap">
+        SELECT * FROM notification
+        <where>
+            <if test="query != null and query != ''">
+                AND (
+                title LIKE CONCAT('%', #{query}, '%')
+                OR content LIKE CONCAT('%', #{query}, '%')
+                OR type LIKE CONCAT('%', #{query}, '%')
+                OR status LIKE CONCAT('%', #{query}, '%')
+                )
+            </if>
+            <if test="username != 'admin'">
+                AND status = 'active'
+            </if>
+        </where>
+        ORDER BY createTime DESC
+    </select>
+
+    <delete id="deleteNotifications" parameterType="java.lang.String">  <!-- 根据实际ID类型选择参数类型（Integer/Long） -->
+        DELETE FROM notification
+        WHERE id = #{id}
+    </delete>
+
+    <update id="updateNotifications" parameterType="org.example.accounting.DO.Notification">
+        UPDATE notification
+        <set>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <insert id="addNotifications" parameterType="org.example.accounting.DO.Notification"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO notification
+            (title, content, type, status, createTime)
+        VALUES
+            (
+                #{title,jdbcType=VARCHAR},
+                #{content,jdbcType=VARCHAR},
+                #{type,jdbcType=VARCHAR},
+                #{status,jdbcType=VARCHAR},
+                now()
+            )
+    </insert>
+
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.accounting.DAO.ProductDAO">
+
+    <resultMap id="ProductResultMap" type="org.example.accounting.DO.ProductDO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="price" jdbcType="DECIMAL" property="price"/>
+        <result column="description" jdbcType="CLOB" property="description"/>
+        <result column="image" jdbcType="VARCHAR" property="image"/>
+    </resultMap>
+
+    <select id="pageQuery" resultMap="ProductResultMap">
+        SELECT id, name, price, description, image
+        FROM product
+        <where>
+            <if test="query != null and query != ''">
+                AND (
+                name LIKE CONCAT('%', #{query}, '%')
+                OR description LIKE CONCAT('%', #{query}, '%')
+                OR CAST(price AS CHAR) LIKE CONCAT('%', #{query}, '%')
+                )
+            </if>
+            <if test="username != null and username != 'admin'">
+                <!-- 如果产品需要关联用户，需在表中添加user_id字段 -->
+            </if>
+        </where>
+        ORDER BY id ASC
+    </select>
+
+    <select id="getById" resultMap="ProductResultMap" parameterType="java.lang.Long">
+        SELECT *
+        FROM product
+        WHERE id = #{id}
+    </select>
+
+</mapper>
